@@ -1,5 +1,6 @@
-../Core/Src/flash.c:21:17:GetPage	1
-../Core/Src/flash.c:31:17:GetBank	4
-../Core/Src/flash.c:68:14:flash_erase	3
-../Core/Src/flash.c:107:14:flash_write	7
-../Core/Src/flash.c:169:6:flash_jump_to_app	1
+../Core/Src/flash.c:31:17:GetPage	2
+../Core/Src/flash.c:88:17:GetBank	2
+../Core/Src/flash.c:109:14:flash_erase	3
+../Core/Src/flash.c:145:14:flash_erase_config_area	5
+../Core/Src/flash.c:194:14:flash_write	6
+../Core/Src/flash.c:256:6:flash_jump_to_app	1

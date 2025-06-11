@@ -55,6 +55,7 @@
 #define X_CAN ((uint8_t)0x18u)  /**< Cancel. */
 #define X_C   ((uint8_t)0x43u)  /**< ASCII "C" to notify the host we want to use CRC16. */
 
+#define DEBUG_XMODEM 0
 /* Status report for the functions. */
 typedef enum {
   X_OK            = 0x00u, /**< The action was successful. */
@@ -73,5 +74,7 @@ typedef enum {
 
 void xmodem_receive(download_target_t target); // app, config
 //void xmodem_receive(void); // app only
+static uint32_t GetPage(uint32_t Addr);
+static uint32_t GetBank(uint32_t Addr);
 
 #endif /* XMODEM_H_ */

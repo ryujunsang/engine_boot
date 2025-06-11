@@ -8,6 +8,7 @@
  */
 
 #include "xmodem.h"
+#include "flash.h"
 
 /* Global variables. */
 static uint8_t xmodem_packet_number = 1u;         /**< Packet number counter. */
@@ -193,6 +194,7 @@ static xmodem_status xmodem_handle_packet(uint8_t header)
   }
 
   /* If it is the first packet, then erase the memory. */
+#if 0
   if ((X_OK == status) && (false == x_first_packet_received))
   {
     if (FLASH_OK == flash_erase(xmodem_start_address))
@@ -204,6 +206,29 @@ static xmodem_status xmodem_handle_packet(uint8_t header)
       status |= X_ERROR_FLASH;
     }
   }
+#else
+  if ((X_OK == status) && (false == x_first_packet_received))
+  {
+    flash_status erase_result = FLASH_ERROR;
+
+    if (xmodem_start_address == FLASH_CONFIG_START_ADDRESS) {
+      /* 설정데이터 영역 전용 지우기 */
+      erase_result = flash_erase_config_area(xmodem_start_address);
+    } else {
+      /* 애플리케이션 영역 지우기 */
+      erase_result = flash_erase(xmodem_start_address);
+    }
+
+    if (FLASH_OK == erase_result)
+    {
+      x_first_packet_received = true;
+    }
+    else
+    {
+      status |= X_ERROR_FLASH;
+    }
+  }
+#endif
 
   /* Error handling and flashing. */
   if (X_OK == status)

@@ -26,7 +26,7 @@ Core/Src/xmodem.o: ../Core/Src/xmodem.c ../Core/Inc/xmodem.h \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_pwr_ex.h \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart.h \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart_ex.h \
- ../Core/Inc/flash.h
+ ../Core/Inc/flash.h ../Core/Inc/flash.h
 ../Core/Inc/xmodem.h:
 ../Core/Inc/uart.h:
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h:
@@ -56,4 +56,5 @@ Core/Src/xmodem.o: ../Core/Src/xmodem.c ../Core/Inc/xmodem.h \
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_pwr_ex.h:
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart.h:
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart_ex.h:
+../Core/Inc/flash.h:
 ../Core/Inc/flash.h:

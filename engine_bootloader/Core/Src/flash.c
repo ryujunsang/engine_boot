@@ -8,6 +8,10 @@
  */
 
 #include "flash.h"
+#include "xmodem.h"
+
+static uint32_t GetPage(uint32_t Addr);
+static uint32_t GetBank(uint32_t Addr);
 
 /* Function pointer for jumping to user application. */
 typedef void (*fnc_ptr)(void);
@@ -18,16 +22,37 @@ typedef void (*fnc_ptr)(void);
  * @param Addr: 플래시 메모리 주소
  * @return 페이지 번호
  */
+#if 0
 static uint32_t GetPage(uint32_t Addr)
 {
     return (Addr - FLASH_BASE) / FLASH_PAGE_SIZE;
 }
+#else
+static uint32_t GetPage(uint32_t Addr)
+{
+  uint32_t page = 0;
+
+  if (Addr < (FLASH_BASE + FLASH_BANK_SIZE))
+  {
+    /* Bank 1 */
+    page = (Addr - FLASH_BASE) / FLASH_PAGE_SIZE;
+  }
+  else
+  {
+    /* Bank 2 - 설정데이터 영역 포함 */
+    page = (Addr - (FLASH_BASE + FLASH_BANK_SIZE)) / FLASH_PAGE_SIZE;
+  }
+
+  return page;
+}
+#endif
 
 /**
  * @brief 주소에 해당하는 플래시 뱅크 번호 가져오기
  * @param Addr: 플래시 메모리 주소
  * @return 뱅크 번호 (FLASH_BANK_1 또는 FLASH_BANK_2)
  */
+#if 0
 static uint32_t GetBank(uint32_t Addr)
 {
     uint32_t bank = 0;
@@ -59,7 +84,23 @@ static uint32_t GetBank(uint32_t Addr)
 
     return bank;
 }
+#else
+static uint32_t GetBank(uint32_t Addr)
+{
+  uint32_t bank = 0;
 
+  if (Addr < (FLASH_BASE + FLASH_BANK_SIZE))
+  {
+    bank = FLASH_BANK_1;
+  }
+  else
+  {
+    bank = FLASH_BANK_2;
+  }
+
+  return bank;
+}
+#endif
 /**
  * @brief   This function erases the memory.
  * @param   address: First address to be erased (the last is the end of the flash).
@@ -96,6 +137,52 @@ flash_status flash_erase(uint32_t address)
     return status;
 }
 
+/**
+ * @brief  설정데이터 영역 전용 플래시 지우기
+ * @param  address: 시작 주소
+ * @retval 플래시 상태
+ */
+flash_status flash_erase_config_area(uint32_t address)
+{
+    HAL_FLASH_Unlock();
+    flash_status status = FLASH_ERROR;
+    FLASH_EraseInitTypeDef erase_init;
+    uint32_t error = 0u;
+
+    /* 설정데이터 주소 범위 체크 */
+    if (address != FLASH_CONFIG_START_ADDRESS) {
+        HAL_FLASH_Lock();
+        return FLASH_ERROR;
+    }
+
+    erase_init.TypeErase = FLASH_TYPEERASE_PAGES;
+    erase_init.Page = GetPage(address);
+    erase_init.Banks = GetBank(address);
+
+    /* 설정데이터는 8KB = 4페이지 (dual bank 모드에서 2KB/페이지) */
+    erase_init.NbPages = FLASH_CONFIG_SIZE / FLASH_PAGE_SIZE;
+
+    /* 플래시 캐시 비활성화 */
+    if (READ_BIT(FLASH->ACR, FLASH_ACR_ICEN) != 0U) {
+        __HAL_FLASH_INSTRUCTION_CACHE_DISABLE();
+    }
+    if (READ_BIT(FLASH->ACR, FLASH_ACR_DCEN) != 0U) {
+        __HAL_FLASH_DATA_CACHE_DISABLE();
+    }
+
+    if (HAL_OK == HAL_FLASHEx_Erase(&erase_init, &error))
+    {
+        status = FLASH_OK;
+    }
+
+    /* 플래시 캐시 재활성화 */
+    __HAL_FLASH_INSTRUCTION_CACHE_ENABLE();
+    __HAL_FLASH_DATA_CACHE_ENABLE();
+
+    HAL_FLASH_Lock();
+    return status;
+}
+
 
 /**
  * @brief   This function flashes the memory.
@@ -126,8 +213,8 @@ flash_status flash_write(uint32_t address, uint32_t *data, uint32_t length)
         /* 끝에 도달했는지 확인 */
         if (address >= FLASH_APP_END_ADDRESS)
         {
-            status |= FLASH_ERROR_SIZE;
-            break;
+//            status |= FLASH_ERROR_SIZE;
+//            break;
         }
 
         /* 64비트 데이터 구성 */
