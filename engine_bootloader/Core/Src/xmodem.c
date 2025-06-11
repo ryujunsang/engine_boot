@@ -19,20 +19,33 @@ static uint16_t xmodem_calc_crc(uint8_t *data, uint16_t length);
 static xmodem_status xmodem_handle_packet(uint8_t size);
 static xmodem_status xmodem_error_handler(uint8_t *error_number, uint8_t max_error_number);
 
+static uint32_t xmodem_start_address = 0u;
+static uint32_t xmodem_end_address = 0u;
+
 /**
  * @brief   This function is the base of the Xmodem protocol.
  *          When we receive a header from UART, it decides what action it shall take.
  * @param   void
  * @return  void
  */
-void xmodem_receive(void)
+void xmodem_receive(download_target_t target)
 {
   volatile xmodem_status status = X_OK;
   uint8_t error_number = 0u;
 
   x_first_packet_received = false;
   xmodem_packet_number = 1u;
-  xmodem_actual_flash_address = FLASH_APP_START_ADDRESS;
+
+  /* 다운로드 대상에 따라 주소 설정 */
+  if (target == DOWNLOAD_APP) {
+    xmodem_start_address = FLASH_APP_START_ADDRESS;
+    xmodem_end_address = FLASH_APP_END_ADDRESS;
+  } else if (target == DOWNLOAD_CONFIG) {
+    xmodem_start_address = FLASH_CONFIG_START_ADDRESS;
+    xmodem_end_address = FLASH_CONFIG_END_ADDRESS;
+  }
+
+  xmodem_actual_flash_address = xmodem_start_address;
 
   /* Loop until there isn't any error (or until we jump to the user application). */
   while (X_OK == status)
@@ -182,7 +195,7 @@ static xmodem_status xmodem_handle_packet(uint8_t header)
   /* If it is the first packet, then erase the memory. */
   if ((X_OK == status) && (false == x_first_packet_received))
   {
-    if (FLASH_OK == flash_erase(FLASH_APP_START_ADDRESS))
+    if (FLASH_OK == flash_erase(xmodem_start_address))
     {
       x_first_packet_received = true;
     }
@@ -212,11 +225,16 @@ static xmodem_status xmodem_handle_packet(uint8_t header)
       status |= X_ERROR_CRC;
     }
   }
-
+#if 1
     /* Do the actual flashing (if there weren't any errors). */
     if ((X_OK == status) && (FLASH_OK != flash_write(xmodem_actual_flash_address, (uint32_t*)&received_packet_data[0u], (uint32_t)size/4u)))
     {
       /* Flashing error. */
+      status |= X_ERROR_FLASH;
+    }
+#endif
+    if ((X_OK == status) && (xmodem_actual_flash_address + size > xmodem_end_address))
+    {
       status |= X_ERROR_FLASH;
     }
 

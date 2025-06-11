@@ -24,6 +24,12 @@
 #define FLASH_APP_START_ADDRESS  0x08010000  // 필요에 따라 조정
 #define FLASH_APP_END_ADDRESS    (FLASH_BANK1_END - 0x10U)
 
+// for config flash
+#define FLASH_CONFIG_START_ADDRESS  0x0807E000  // 설정데이터 시작 주소 (440K 이후)
+#define FLASH_CONFIG_END_ADDRESS    0x0807FFFF  // 설정데이터 끝 주소 (8K 영역)
+#define FLASH_CONFIG_SIZE           0x2000      // 8K 크기
+
+
 
 
 

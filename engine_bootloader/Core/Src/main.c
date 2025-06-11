@@ -21,7 +21,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "xmodem.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -127,12 +127,42 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 	  while (1)
 	  {
-			/* Ask for new data and start the Xmodem protocol. */
-			uart_transmit_str((uint8_t*)"Please send bin file with Xmodem protocol to update the firmware.\n\r");
-			xmodem_receive();
-			/* We only exit the xmodem protocol, if there are any errors.
-			 * In that case, notify the user and start over. */
-			uart_transmit_str((uint8_t*)"\n\rFailed... Please try again.\n\r");
+		  /* 메뉴 출력 */
+		  uart_transmit_str((uint8_t*)"\n\r=== Kisan Coin System Bootloader ===\n\r");
+		  uart_transmit_str((uint8_t*)"1. Download Application (Xmodem)\n\r");
+		  uart_transmit_str((uint8_t*)"2. Download Config Data (Xmodem)\n\r");
+		  uart_transmit_str((uint8_t*)"3. Jump to Application\n\r");
+		  uart_transmit_str((uint8_t*)"Select option: ");
+
+		  uint8_t menu_choice = 0;
+
+		  /* 사용자 입력 대기 */
+		  while(HAL_UART_Receive(&huart4, &menu_choice, 1, HAL_MAX_DELAY) != HAL_OK);
+
+		  switch(menu_choice) {
+		    case '1':
+		      uart_transmit_str((uint8_t*)"\n\rReady for Application download...\n\r");
+		      uart_transmit_str((uint8_t*)"Please send bin file with Xmodem protocol.\n\r");
+		      xmodem_receive(DOWNLOAD_APP);
+		      uart_transmit_str((uint8_t*)"\n\rApplication download failed. Please try again.\n\r");
+		      break;
+
+		    case '2':
+		      uart_transmit_str((uint8_t*)"\n\rReady for Config Data download...\n\r");
+		      uart_transmit_str((uint8_t*)"Please send config file with Xmodem protocol.\n\r");
+		      xmodem_receive(DOWNLOAD_CONFIG);
+		      uart_transmit_str((uint8_t*)"\n\rConfig download failed. Please try again.\n\r");
+		      break;
+
+		    case '3':
+		      uart_transmit_str((uint8_t*)"Jumping to Application...\n\r");
+		      flash_jump_to_app();
+		      break;
+
+		    default:
+		      uart_transmit_str((uint8_t*)"\n\rInvalid option. Please try again.\n\r");
+		      break;
+		  }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

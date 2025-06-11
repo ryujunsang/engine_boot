@@ -71,13 +71,20 @@ flash_status flash_erase(uint32_t address)
     flash_status status = FLASH_ERROR;
     FLASH_EraseInitTypeDef erase_init;
     uint32_t error = 0u;
+    uint32_t end_address;
 
     erase_init.TypeErase = FLASH_TYPEERASE_PAGES;
-    erase_init.Page = GetPage(address);  // 주소를 페이지 번호로 변환하는 함수 필요
-    erase_init.Banks = GetBank(address);  // 주소에 해당하는 뱅크 계산
+    erase_init.Page = GetPage(address);
+    erase_init.Banks = GetBank(address);
 
-    /* G4는 페이지 수 계산 방식이 다름 */
-    uint32_t end_page = GetPage(FLASH_APP_END_ADDRESS);
+    /* 주소에 따라 끝 주소 결정 */
+    if (address == FLASH_CONFIG_START_ADDRESS) {
+        end_address = FLASH_CONFIG_END_ADDRESS;
+    } else {
+        end_address = FLASH_APP_END_ADDRESS;
+    }
+
+    uint32_t end_page = GetPage(end_address);
     erase_init.NbPages = end_page - erase_init.Page + 1;
 
     if (HAL_OK == HAL_FLASHEx_Erase(&erase_init, &error))

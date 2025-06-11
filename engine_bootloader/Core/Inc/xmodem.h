@@ -65,6 +65,13 @@ typedef enum {
   X_ERROR         = 0xFFu  /**< Generic error. */
 } xmodem_status;
 
-void xmodem_receive(void);
+typedef enum {
+  DOWNLOAD_APP = 0,    /**< 애플리케이션 다운로드 */
+  DOWNLOAD_CONFIG = 1  /**< 설정데이터 다운로드 */
+} download_target_t;
+
+
+void xmodem_receive(download_target_t target); // app, config
+//void xmodem_receive(void); // app only
 
 #endif /* XMODEM_H_ */

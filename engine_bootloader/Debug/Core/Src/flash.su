@@ -1,5 +1,5 @@
 ../Core/Src/flash.c:21:17:GetPage	16	static
 ../Core/Src/flash.c:31:17:GetBank	24	static
 ../Core/Src/flash.c:68:14:flash_erase	48	static
-../Core/Src/flash.c:100:14:flash_write	80	static
-../Core/Src/flash.c:162:6:flash_jump_to_app	16	static,ignoring_inline_asm
+../Core/Src/flash.c:107:14:flash_write	80	static
+../Core/Src/flash.c:169:6:flash_jump_to_app	16	static,ignoring_inline_asm
