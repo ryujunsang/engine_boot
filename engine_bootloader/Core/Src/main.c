@@ -92,8 +92,8 @@ int main(void)
   MX_UART4_Init();
   /* USER CODE BEGIN 2 */
   uart_transmit_str((uint8_t*)"\n\r##########################################\n\r");
-  uart_transmit_str((uint8_t*)"##     Kisan Coin System Bootloader     ##\n\r");
-  uart_transmit_str((uint8_t*)"##         ( version : 0.0.2 )          ##\n\r");
+  uart_transmit_str((uint8_t*)"##    Kisan Engine System Bootloader    ##\n\r");
+  uart_transmit_str((uint8_t*)"##         ( version : 0.0.3 )          ##\n\r");
   uart_transmit_str((uint8_t*)"##########################################\n\r");
   uart_transmit_str((uint8_t*)"Press 'b' to stay in bootloader mode...\n\r");
 
